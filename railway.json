@@ -5,7 +5,7 @@
     "buildCommand": "echo 'Skipping build: next build runs at start so the SQLite volume is mounted'"
   },
   "deploy": {
-    "startCommand": "npm run build && npm run start",
+    "startCommand": "sh scripts/railway-start.sh",
     "restartPolicyType": "ON_FAILURE"
   }
 }
