@@ -1,0 +1,33 @@
+build
+dist / media
+node_modules
+.DS_Store
+.env
+.next
+next-env.d.ts
+.vercel
+
+# Payload default media upload directory
+public/media/
+
+public/robots.txt
+public/sitemap*.xml
+
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Local DB backups and TS build cache
+*.db.bak*
+*.tsbuildinfo
+
+# Local SQLite database (lives on a Railway volume in production)
+*.db
+
+# Template Docker files kept locally only; Railway builds with Railpack
+Dockerfile
+docker-compose.yml

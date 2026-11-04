@@ -1,0 +1,103 @@
+/*
+ * DH admin styling for Payload 3.
+ *
+ * Payload 3 exposes a small set of theme variables (fonts, radii, the elevation scale) plus
+ * component classes. Values go in variables where Payload offers one; the few class overrides
+ * are grouped at the bottom so they're easy to revisit when upgrading to Payload 4, which
+ * replaces most of them with semantic design variables.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Domine:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@layer payload {
+  /* 1. Brand tokens and type */
+  :root {
+    --dh-lavender: #ce8fdd;
+    --dh-lavender-dark: #a45fb5;
+    --dh-font-serif: 'Domine', Georgia, serif;
+    // Lavender text needs more contrast on white than on black
+    --dh-accent-text: #8a3f9c;
+
+    --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-serif: var(--dh-font-serif);
+
+    --style-radius-s: 4px;
+    --style-radius-m: 6px;
+    --style-radius-l: 10px;
+
+    --accessibility-outline: 2px solid var(--dh-accent-text);
+  }
+
+  html[data-theme='dark'] {
+    --dh-accent-text: var(--dh-lavender);
+  }
+
+  /* 2. Headings: Domine for view titles, as on the site */
+  h1,
+  .doc-header__title,
+  .collection-list__header h1,
+  .list-header h1 {
+    font-family: var(--dh-font-serif);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* 3. Primary actions use the brand lavender with black text in both modes */
+  .btn--style-primary {
+    --color: #000;
+    --bg-color: var(--dh-lavender);
+    --hover-bg: var(--dh-lavender-dark);
+    --hover-color: #000;
+  }
+
+  /* 4. Nav: lavender marker on the current page */
+  .nav__link-indicator {
+    width: 3px;
+    background: var(--dh-lavender);
+  }
+
+  /* 5. Logo and login screen */
+  .dh-admin-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--theme-text);
+
+    svg {
+      width: 120px;
+      height: auto;
+    }
+
+    span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--dh-accent-text);
+    }
+  }
+
+  .dh-admin-icon {
+    display: block;
+    width: 28px;
+    height: auto;
+    color: var(--theme-text);
+  }
+
+  .dh-before-login {
+    margin: 0 0 var(--base);
+    text-align: center;
+    color: var(--theme-elevation-500);
+  }
+
+  .template-minimal {
+    border-top: 6px solid var(--dh-lavender);
+  }
+
+  /* 6. Rich text links pick up the accent */
+  .rich-text-lexical a,
+  .field-description a {
+    color: var(--dh-accent-text);
+  }
+}

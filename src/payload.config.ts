@@ -1,0 +1,154 @@
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import sharp from 'sharp'
+import path from 'path'
+import { buildConfig, PayloadRequest } from 'payload'
+import { fileURLToPath } from 'url'
+
+import { Categories } from './collections/Categories'
+import { Media } from './collections/Media'
+import { Pages } from './collections/Pages'
+import { Posts } from './collections/Posts'
+import { Projects } from './collections/Projects'
+import { Team } from './collections/Team'
+import { Users } from './collections/Users'
+import { Footer } from './Footer/config'
+import { Header } from './Header/config'
+import { SiteSettings } from './globals/SiteSettings/config'
+import { plugins } from './plugins'
+import { defaultLexical } from '@/fields/defaultLexical'
+import { getServerSideURL } from './utilities/getURL'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+export default buildConfig({
+  admin: {
+    components: {
+      beforeLogin: ['@/components/BeforeLogin'],
+      graphics: {
+        Icon: '@/components/AdminGraphics#AdminIcon',
+        Logo: '@/components/AdminGraphics#AdminLogo',
+      },
+    },
+    // Widgets editors can rearrange, resize, add and remove from the dashboard's edit mode
+    dashboard: {
+      defaultLayout: [
+        { widgetSlug: 'welcome', width: 'full' },
+        { widgetSlug: 'recent-edits', width: 'medium' },
+        { widgetSlug: 'drafts', width: 'medium' },
+        { widgetSlug: 'seo-health', width: 'small' },
+        { widgetSlug: 'team-profiles', width: 'small' },
+        { widgetSlug: 'forms-inbox', width: 'small' },
+        { widgetSlug: 'collections', width: 'full' },
+      ],
+      widgets: [
+        {
+          slug: 'welcome',
+          Component: '@/components/AdminDashboard#WelcomeWidget',
+          label: 'Welcome and quick actions',
+          minWidth: 'large',
+          maxWidth: 'full',
+        },
+        {
+          slug: 'recent-edits',
+          Component: '@/components/AdminDashboard#RecentEditsWidget',
+          label: 'Recently edited',
+          minWidth: 'small',
+          maxWidth: 'full',
+        },
+        {
+          slug: 'drafts',
+          Component: '@/components/AdminDashboard#DraftsWidget',
+          label: 'Drafts waiting to publish',
+          minWidth: 'small',
+          maxWidth: 'full',
+        },
+        {
+          slug: 'seo-health',
+          Component: '@/components/AdminDashboard#SEOHealthWidget',
+          label: 'Search and sharing',
+          minWidth: 'small',
+          maxWidth: 'large',
+        },
+        {
+          slug: 'team-profiles',
+          Component: '@/components/AdminDashboard#TeamProfilesWidget',
+          label: 'Team profiles',
+          minWidth: 'small',
+          maxWidth: 'medium',
+        },
+        {
+          slug: 'forms-inbox',
+          Component: '@/components/AdminDashboard#FormsInboxWidget',
+          label: 'Form submissions',
+          minWidth: 'small',
+          maxWidth: 'medium',
+        },
+      ],
+    },
+    meta: {
+      titleSuffix: ' | DH content studio',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/favicon.svg' }],
+    },
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
+    user: Users.slug,
+    livePreview: {
+      breakpoints: [
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 375,
+          height: 667,
+        },
+        {
+          label: 'Tablet',
+          name: 'tablet',
+          width: 768,
+          height: 1024,
+        },
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1440,
+          height: 900,
+        },
+      ],
+    },
+  },
+  // This config helps us configure global or default features that the other editors can inherit
+  editor: defaultLexical,
+  db: sqliteAdapter({
+    client: {
+      url: process.env.DATABASE_URL || '',
+    },
+  }),
+  collections: [Pages, Posts, Projects, Team, Media, Categories, Users],
+  cors: [getServerSideURL()].filter(Boolean),
+  globals: [SiteSettings, Header, Footer],
+  plugins,
+  secret: process.env.PAYLOAD_SECRET,
+  sharp,
+  typescript: {
+    outputFile: path.resolve(dirname, 'payload-types.ts'),
+  },
+  jobs: {
+    access: {
+      run: ({ req }: { req: PayloadRequest }): boolean => {
+        // Allow logged in users to execute this endpoint (default)
+        if (req.user) return true
+
+        const secret = process.env.CRON_SECRET
+        if (!secret) return false
+
+        // If there is no logged in user, then check
+        // for the Vercel Cron secret to be present as an
+        // Authorization header:
+        const authHeader = req.headers.get('authorization')
+        return authHeader === `Bearer ${secret}`
+      },
+    },
+    tasks: [],
+  },
+})
